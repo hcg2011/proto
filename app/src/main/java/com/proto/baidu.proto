@@ -1,0 +1,98 @@
+syntax = "proto3";
+package com.prize.proto;
+
+message Response {
+    string code = 1;
+    string msg = 2;
+    repeated Ads adList = 3;
+}
+
+message Ads {
+    enum TypeId {
+        BIG_IMG = 0; //大图
+        SMALL_IMG = 1; //小图
+        MULTI_IMG = 2; //多图
+        VIDEO = 3; //视频
+    }
+    enum Source {
+        GdtTencentSource = 0; //广点通
+        SelfAppSource = 1; //自营
+        IFlytekSource = 2;
+        BaiduAdSource = 3; //百度
+    }
+
+    uint32 id = 1;
+    TypeId typeId = 2; //广告类型
+    string title = 3; // 广告推广标题
+    string adSource = 4; //品牌名称
+    repeated string adBanner = 5; //广告图片地址
+    uint32 img_width = 6;
+    uint32 img_height = 7;
+    CommonDetail commonDetail = 8; //GdtTencentSource、SelfAppSource广告详情
+    BaiduDetail baiduDetail = 9; //百度广告详情
+    Source source = 10; //广告源,根据该字段判断读取detail
+}
+
+enum DetailType {
+    SURFING = 0; //网页
+    DOWNLOAD = 1; //下载
+    DEEPLINK = 2; //deeplink
+}
+
+
+message CommonDetail {
+    DetailType detailType = 1; //点击类型
+    string appInfo = 2;
+    string appId = 3;
+    string packageName = 4; //包名
+    string apkName = 5; //应用名
+    string jumpUrl = 6; // 点击行为地址，用户点击后，在客户端进行响应，会经过多次302跳转最终到达目标地址
+    repeated string impr_url = 7;
+    repeated string click_url = 8;
+    repeated string inst_downstart_url = 9; //下载开始上报
+    repeated string inst_downsucc_url = 10; //下载成功上报
+    repeated string inst_installstart_url = 11; //安装开始上报
+    repeated string inst_installsucc_url = 12; //安装成功上报
+}
+
+message BaiduDetail {
+    string jumpUrl = 1; // 点击行为地址，用户点击后，在客户端进行响应，会经过多次302跳转最终到达目标地址
+    repeated string icon_src = 2; // 广告图标地址，注意：单个广告可能有多张图标返回
+    DetailType detailType = 3; //广告类型
+    uint32 app_size = 4; // 下载类广告应用大小
+    string packageName = 5; //包名
+    string apkName = 6; //应用名
+    string video_url = 7; // 广告视频物料地址
+    string video_duration = 8; // 广告视频物料时长
+    string deeplink_url = 9; // deeplink唤醒打开页面
+    uint32 fallback_type = 10; // deeplink唤醒广告退化类型，1：浏览器打开页面，2：下载
+    string fallback_url = 11; // deeplink唤醒广告退化链接
+    string mob_adtext = 12; // 20160901新广告法出台，要求明确使用"广告"，该字段为"广告"小图标地址，媒体需要在渲染的时候添加
+    string mob_adlogo = 13; // 20160901新广告法出台，该字段为与上述字段配合使用的"熊掌"图标地址，媒体需要在渲染的时候添加
+    repeated Tracking ad_tracking = 14; // 广告监控信息
+    repeated string win_notice_url = 15; // 曝光日志URL列表，在曝光后必须在客户端逐个汇报完
+}
+
+// 广告效果跟踪信息
+message Tracking {
+    // 广告展示过程事件类型
+    enum TrackingEvent {
+        // 广告展示过程共性事件
+        AD_CLICK = 0; // 广告被点击
+        AD_EXPOSURE = 1; // 广告被展现
+        AD_CLOSE = 2; // 广告被关闭
+
+        // 视频类广告展示过程事件
+        VIDEO_AD_START = 101000; // 视频开始播放
+        VIDEO_AD_FULL_SCREEN = 101001; // 视频全屏
+        VIDEO_AD_END = 101002; // 视频正常播放结束
+        VIDEO_AD_START_CARD_CLICK = 101003; // 点击预览图播放视频
+
+        // 下载类广告推广APP相关事件
+        APP_AD_DOWNLOAD = 102000; // 下载推广APP
+        APP_AD_INSTALL = 102001; // 安装推广APP
+        APP_AD_ACTIVE = 102002; // 激活推广APP
+    };
+    TrackingEvent tracking_event = 1; // 被跟踪的广告展示过程事件
+    repeated string tracking_url = 2; // 事件监控URL
+}
